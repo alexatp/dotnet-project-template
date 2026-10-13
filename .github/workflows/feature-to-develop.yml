@@ -1,0 +1,10 @@
+name: Feature to Develop PR
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+
+permissions:
+  contents: read
+  pull-requests: write
