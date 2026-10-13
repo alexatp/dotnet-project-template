@@ -1,0 +1,44 @@
+name: Feature to Develop PR
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  create-pull-request:
+    name: Create Pull Request
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check if Pull Request already exists
+        id: check-pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PR_NUMBER=$(gh pr list \
+            --head "${{ github.ref_name }}" \
+            --base develop \
+            --state open \
+            --json number \
+            --jq '.[0].number')
+
+          echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+
+      - name: Create Pull Request
+        if: steps.check-pr.outputs.pr_number == ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr create \
+            --head "${{ github.ref_name }}" \
+            --base develop \
+            --title "Merge ${{ github.ref_name }} into develop" \
+            --body "Pull Request created automatically by GitHub Actions."
