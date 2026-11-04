@@ -1,0 +1,32 @@
+name: Validate Main PR Source
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+permissions:
+  contents: read
+
+jobs:
+  validate-source:
+    name: Validate source branch
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate source branch is develop
+        shell: bash
+        run: |
+          echo "Source branch: ${{ github.head_ref }}"
+          echo "Target branch: ${{ github.base_ref }}"
+
+          if [ "${{ github.head_ref }}" != "develop" ]; then
+            echo "ERROR: Pull requests to main must originate from develop."
+            exit 1
+          fi
+
+          echo "Valid source branch: develop."
